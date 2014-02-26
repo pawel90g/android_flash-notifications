@@ -6,32 +6,28 @@ import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Handler;
 import android.provider.CallLog;
-import android.widget.Toast;
 
 public class FlashlightService {
 
+    private static FlashlightService instance;
     private Context context;
     private Camera camera;
     private Cursor cursor;
-
     private Runnable runnable;
-
     private Handler handler;
-
-    private static FlashlightService instance;
-
-    public static FlashlightService getInstance(Context context) {
-        if (instance == null)
-            instance = new FlashlightService(context);
-
-        return instance;
-    }
 
     private FlashlightService(Context context) {
         this.context = context;
 
         camera = Camera.open();
         handler = new Handler();
+    }
+
+    public static FlashlightService getInstance(Context context) {
+        if (instance == null)
+            instance = new FlashlightService(context);
+
+        return instance;
     }
 
     private void makeFlash(int flashesNumber) {
@@ -62,7 +58,7 @@ public class FlashlightService {
                 int unreaded = cursor.getCount();
                 cursor.deactivate();
 
-                if (unreaded > 0)
+                if (unreaded > 0 && !AccelerometerService.getInstance(context).isInMove())
                     instance.makeFlash(1);
 
                 instance.handler.postDelayed(runnable, 5000);
@@ -84,7 +80,7 @@ public class FlashlightService {
                 cursor = context.getContentResolver().query(Uri.parse("content://call_log/calls"), projection2, where, null, null);
                 int missedCalls = cursor.getCount();
 
-                if (missedCalls > 0)
+                if (missedCalls > 0 && !AccelerometerService.getInstance(context).isInMove())
                     instance.makeFlash(2);
 
                 instance.handler.postDelayed(runnable, 5000);

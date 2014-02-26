@@ -30,6 +30,7 @@ public class BroadcastReceiver extends android.content.BroadcastReceiver {
                 if (ring == true && callReceived == true) {
                     ring = false;
                     callReceived = false;
+
                     FlashlightService.getInstance(context).missedCallNotification();
                 }
             }
