@@ -11,27 +11,38 @@ public class BroadcastReceiver extends android.content.BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        // check for incoming sms
-        if (intent.getAction().equals("android.provider.Telephony.SMS_RECEIVED")) {
-            FlashlightService.getInstance(context).unreadSmsNotification();
-        } else {
+        PreferencesHelper prefs = PreferencesHelper.getInstance(context);
+        if (prefs.load("notifications_switch").equals("true")) {
 
-            // check for missed call
-            String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
-            if (state.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
-                ring = true;
+            Boolean isTime = true;
+            if(prefs.load("time_switch").equals("true")) {
+                isTime = TimeService.getInstance(context).isTime();
             }
+            // check for incoming sms
+            if (intent.getAction().equals("android.provider.Telephony.SMS_RECEIVED")
+                    && prefs.load("sms_switch").equals("true") && isTime) {
+                FlashlightService.getInstance(context).unreadSmsNotification();
+            } else {
 
-            if (state.equals(TelephonyManager.EXTRA_STATE_OFFHOOK)) {
-                callReceived = true;
-            }
+                if (prefs.load("calls_switch").equals("true") && isTime) {
+                    // check for missed call
+                    String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
+                    if (state.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
+                        ring = true;
+                    }
 
-            if (state.equals(TelephonyManager.EXTRA_STATE_IDLE)) {
-                if (ring == true && callReceived == true) {
-                    ring = false;
-                    callReceived = false;
+                    if (state.equals(TelephonyManager.EXTRA_STATE_OFFHOOK)) {
+                        callReceived = true;
+                    }
 
-                    FlashlightService.getInstance(context).missedCallNotification();
+                    if (state.equals(TelephonyManager.EXTRA_STATE_IDLE)) {
+                        if (ring == true && callReceived == true) {
+                            ring = false;
+                            callReceived = false;
+
+                            FlashlightService.getInstance(context).missedCallNotification();
+                        }
+                    }
                 }
             }
         }

@@ -7,9 +7,10 @@
               android:padding="10dp">
 
     <RelativeLayout android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp">
 
-        <TextView android:layout_width="wrap_content"
+    <TextView android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:textColor="@android:color/white"
                   android:textSize="18sp"
@@ -25,9 +26,9 @@
 
     <RelativeLayout android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-            >
+                    android:layout_marginBottom="20dp">
 
-        <TextView android:layout_width="wrap_content"
+    <TextView android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:textColor="@android:color/white"
                   android:textSize="18sp"
@@ -49,7 +50,8 @@
     </RelativeLayout>
 
     <RelativeLayout android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp">
 
         <TextView android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
@@ -72,9 +74,29 @@
                   android:id="@+id/calls_blinks_number"/>
     </RelativeLayout>
 
+    <RelativeLayout android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp">
+
+        <TextView android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:textColor="@android:color/white"
+                  android:textSize="18sp"
+                  android:text="Blink interval [ms]"
+                  android:layout_alignParentLeft="true"
+                  android:layout_centerVertical="true"/>
+
+        <EditText android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_alignParentRight="true"
+                  android:inputType="numberDecimal"
+                  android:id="@+id/blink_interval"/>
+    </RelativeLayout>
+
     <LinearLayout android:layout_width="match_parent"
                   android:layout_height="wrap_content"
-                  android:orientation="vertical">
+                  android:orientation="vertical"
+                  android:layout_marginBottom="20dp">
 
         <RelativeLayout android:layout_width="match_parent"
                         android:layout_height="wrap_content">
@@ -94,7 +116,8 @@
         </RelativeLayout>
 
         <LinearLayout android:layout_width="match_parent"
-                      android:layout_height="wrap_content">
+                      android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp">
             <Button android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -106,6 +129,25 @@
                     android:layout_weight="1"
                     android:text="End time"
                     android:id="@+id/end_time_btn"/>
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="wrap_content">
+
+            <TextView android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:layout_weight="1"
+                      android:text="Start time"
+                      android:id="@+id/start_time_tv"
+                      android:textSize="18sp"
+                      android:gravity="center"/>
+
+            <TextView android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:layout_weight="1"
+                      android:text="End time"
+                      android:id="@+id/end_time_tv"
+                      android:textSize="18sp"
+                      android:gravity="center"/>
         </LinearLayout>
     </LinearLayout>
 

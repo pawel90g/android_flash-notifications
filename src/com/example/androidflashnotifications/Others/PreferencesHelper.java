@@ -26,6 +26,9 @@ public class PreferencesHelper {
             save("2", "calls_blinks");
         if (load("sms_blinks").equals(""))
             save("1", "sms_blinks");
+
+        if (load("blink_interval").equals(""))
+            save("7000", "blink_interval");
     }
 
     public static PreferencesHelper getInstance(Context context) {

@@ -15,12 +15,15 @@ public class FlashlightService {
     private Cursor cursor;
     private Runnable runnable;
     private Handler handler;
+    private PreferencesHelper prefs;
 
     private FlashlightService(Context context) {
         this.context = context;
 
         camera = Camera.open();
         handler = new Handler();
+
+        prefs = PreferencesHelper.getInstance(context);
     }
 
     public static FlashlightService getInstance(Context context) {
@@ -58,10 +61,14 @@ public class FlashlightService {
                 int unreaded = cursor.getCount();
                 cursor.deactivate();
 
-                if (unreaded > 0 && !AccelerometerService.getInstance(context).isInMove())
-                    instance.makeFlash(1);
+                Boolean accelerometerInUse = false;
+                if(prefs.load("accelerometer_switch").equals("true"))
+                    accelerometerInUse = AccelerometerService.getInstance(context).isInMove();
 
-                instance.handler.postDelayed(runnable, 5000);
+                if (unreaded > 0 && !accelerometerInUse)
+                    instance.makeFlash(Integer.parseInt(prefs.load("sms_blinks")));
+
+                instance.handler.postDelayed(runnable, Long.parseLong(prefs.load("blink_interval")));
             }
         };
         instance.handler.post(runnable);
@@ -80,16 +87,16 @@ public class FlashlightService {
                 cursor = context.getContentResolver().query(Uri.parse("content://call_log/calls"), projection2, where, null, null);
                 int missedCalls = cursor.getCount();
 
-                if (missedCalls > 0 && !AccelerometerService.getInstance(context).isInMove())
-                    instance.makeFlash(2);
+                Boolean accelerometerInUse = false;
+                if(prefs.load("accelerometer_switch").equals("true"))
+                    accelerometerInUse = AccelerometerService.getInstance(context).isInMove();
 
-                instance.handler.postDelayed(runnable, 5000);
+                if (missedCalls > 0 && !accelerometerInUse)
+                    instance.makeFlash(Integer.parseInt(prefs.load("calls_blinks")));
+
+                instance.handler.postDelayed(runnable, Long.parseLong(prefs.load("blink_interval")));
             }
         };
         instance.handler.post(runnable);
-    }
-
-    public void multipleNotification() {
-
     }
 }

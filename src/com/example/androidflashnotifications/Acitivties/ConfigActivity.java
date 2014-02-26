@@ -18,30 +18,29 @@ import java.util.Calendar;
 public class ConfigActivity extends Activity {
 
     private PreferencesHelper prefs;
-
     private Switch notificationsSwitch;
     private Switch callsSwitch;
     private Switch smsSwitch;
     private Switch timeSwitch;
     private Switch accelerometerSwitch;
-
     private EditText callsBlinksET;
     private EditText smsBlinksET;
-
+    private EditText blinkIntervalET;
     private Button startTimeBtn;
     private Button endTimeBtn;
-
-    private View.OnClickListener endTimeClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            DialogFragment newFragment = new TimePickerFragment(prefs, "end_time");
-            newFragment.show(getFragmentManager(), "timePicker");
-        }
-    };
+    private TextView startTimeTV;
     private View.OnClickListener startTimeClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            DialogFragment newFragment = new TimePickerFragment(prefs, "start_time");
+            DialogFragment newFragment = new TimePickerFragment(prefs, "start_time", startTimeTV);
+            newFragment.show(getFragmentManager(), "timePicker");
+        }
+    };
+    private TextView endTimeTV;
+    private View.OnClickListener endTimeClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            DialogFragment newFragment = new TimePickerFragment(prefs, "end_time", endTimeTV);
             newFragment.show(getFragmentManager(), "timePicker");
         }
     };
@@ -59,6 +58,7 @@ public class ConfigActivity extends Activity {
             prefs.save(String.valueOf(callsSwitch.isChecked()), "calls_switch");
 
             dependsOnCallsSwitch();
+            blinkInterval();
         }
     };
     private CompoundButton.OnCheckedChangeListener smsCheckedChangeListener = new CompoundButton.OnCheckedChangeListener() {
@@ -67,6 +67,7 @@ public class ConfigActivity extends Activity {
             prefs.save(String.valueOf(smsSwitch.isChecked()), "sms_switch");
 
             dependsOnSmsSwitch();
+            blinkInterval();
         }
     };
     private CompoundButton.OnCheckedChangeListener timeCheckedChangeListener = new CompoundButton.OnCheckedChangeListener() {
@@ -139,12 +140,31 @@ public class ConfigActivity extends Activity {
             }
         });
 
+        blinkIntervalET = (EditText) findViewById(R.id.blink_interval);
+        blinkIntervalET.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                prefs.save(blinkIntervalET.getText().toString(), "blink_interval");
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
 
         startTimeBtn = (Button) findViewById(R.id.start_time_btn);
         startTimeBtn.setOnClickListener(startTimeClickListener);
 
         endTimeBtn = (Button) findViewById(R.id.end_time_btn);
         endTimeBtn.setOnClickListener(endTimeClickListener);
+
+        startTimeTV = (TextView) findViewById(R.id.start_time_tv);
+        endTimeTV = (TextView) findViewById(R.id.end_time_tv);
     }
 
     @Override
@@ -166,6 +186,27 @@ public class ConfigActivity extends Activity {
 
         callsBlinksET.setText(prefs.load("calls_blinks"));
         smsBlinksET.setText(prefs.load("sms_blinks"));
+        blinkIntervalET.setText(prefs.load("blink_interval"));
+
+        String startTime = prefs.load("start_time");
+        if (startTime.length() == 6) {
+            startTime = startTime.substring(0, 4);
+            startTime = startTime.substring(0, 2) + ":" + startTime.substring(2, 4);
+        } else if (startTime.length() == 5) {
+            startTime = startTime.substring(0, 3);
+            startTime = startTime.substring(0, 1) + ":" + startTime.substring(1, 3);
+        }
+        startTimeTV.setText(startTime);
+
+        String endTime = prefs.load("end_time");
+        if (endTime.length() == 6) {
+            endTime = endTime.substring(0, 4);
+            endTime = endTime.substring(0, 2) + ":" + endTime.substring(2, 4);
+        } else if (endTime.length() == 5) {
+            endTime = endTime.substring(0, 3);
+            endTime = endTime.substring(0, 1) + ":" + endTime.substring(1, 3);
+        }
+        endTimeTV.setText(endTime);
 
         dependsOnNotificationSwitch();
     }
@@ -180,6 +221,7 @@ public class ConfigActivity extends Activity {
             dependsOnCallsSwitch();
             dependsOnSmsSwitch();
             dependsOnTimeSwitch();
+            blinkInterval();
         } else {
             callsSwitch.setEnabled(false);
             smsSwitch.setEnabled(false);
@@ -191,6 +233,8 @@ public class ConfigActivity extends Activity {
 
             startTimeBtn.setEnabled(false);
             endTimeBtn.setEnabled(false);
+
+            blinkIntervalET.setEnabled(false);
         }
     }
 
@@ -218,15 +262,25 @@ public class ConfigActivity extends Activity {
         }
     }
 
+    private void blinkInterval() {
+        if (smsSwitch.isChecked() ||
+                callsSwitch.isChecked())
+            blinkIntervalET.setEnabled(true);
+        else
+            blinkIntervalET.setEnabled(false);
+    }
+
     public class TimePickerFragment extends DialogFragment
             implements TimePickerDialog.OnTimeSetListener {
 
         private PreferencesHelper prefs;
         private String caller;
+        private TextView textView;
 
-        public TimePickerFragment(PreferencesHelper prefs, String caller) {
+        public TimePickerFragment(PreferencesHelper prefs, String caller, TextView tv) {
             this.prefs = prefs;
             this.caller = caller;
+            this.textView = tv;
         }
 
         @Override
@@ -241,7 +295,12 @@ public class ConfigActivity extends Activity {
         }
 
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            prefs.save(hourOfDay+minute+"00", caller);
+            String minutes = String.valueOf(minute);
+            if (minute < 10)
+                minutes = "0" + String.valueOf(minute);
+
+            prefs.save(String.valueOf(hourOfDay) + minutes + "00", caller);
+            textView.setText(String.valueOf(hourOfDay) + ":" + minutes);
         }
     }
 }

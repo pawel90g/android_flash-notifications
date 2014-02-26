@@ -55,8 +55,7 @@ public class AccelerometerService implements SensorEventListener {
             mAccelCurrent = FloatMath.sqrt(x * x + y * y + z * z);
             float delta = mAccelCurrent - mAccelLast;
             mAccel = mAccel * 0.9f + delta;
-            // Make this higher or lower according to how much
-            // motion you want to detect
+
             if(Math.abs(mAccel) > 0.1){
                 inMove = true;
             } else {
