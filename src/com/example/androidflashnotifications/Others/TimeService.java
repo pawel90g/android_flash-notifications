@@ -1,6 +1,7 @@
 package com.example.androidflashnotifications.Others;
 
 import android.content.Context;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -23,24 +24,35 @@ public class TimeService {
 
     public Boolean isTime() {
 
-        SimpleDateFormat sdf = new SimpleDateFormat("HHmmss");
-        String now = sdf.format(new Date());
+        SimpleDateFormat sdf = new SimpleDateFormat("HHmm");
+        int now = Integer.parseInt(sdf.format(new Date()));
 
-        String startTime = prefs.load("start_time");
-        String endTime = prefs.load("end_time");
+        int startTime = Integer.parseInt(prefs.load("start_time"));
+        int endTime = Integer.parseInt(prefs.load("end_time"));
 
-        if(startTime.compareTo(endTime) > 0)
-            if(now.compareTo(startTime) > 0 || now.compareTo(endTime) < 0)
+        if (startTime < endTime) {
+            if (startTime < now && now < endTime) {
                 return true;
+            } else {
+                return false;
+            }
+        }
 
-        if(startTime.compareTo(endTime) == 0)
-            if(now.compareTo(startTime) == 0 && now.compareTo(endTime) == 0)
+        if (startTime == endTime) {
+            if (startTime == now) {
                 return true;
+            } else {
+                return false;
+            }
+        }
 
-        if(startTime.compareTo(endTime) < 0)
-            if(now.compareTo(startTime) > 0 && now.compareTo(endTime) < 0)
+        if (startTime > endTime) {
+            if (startTime > now || now > endTime) {
                 return true;
-
+            } else {
+                return false;
+            }
+        }
         return false;
     }
 }

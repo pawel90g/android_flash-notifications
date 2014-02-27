@@ -53,6 +53,8 @@ public class FlashlightService {
         final Uri smsContent = Uri.parse("content://sms/inbox");
         final String where = "read = 0";
 
+        final int[] i = {1};
+
         instance.runnable = new Runnable() {
             @Override
             public void run() {
@@ -65,10 +67,15 @@ public class FlashlightService {
                 if(prefs.load("accelerometer_switch").equals("true"))
                     accelerometerInUse = AccelerometerService.getInstance(context).isInMove();
 
-                if (unreaded > 0 && !accelerometerInUse)
+                if (unreaded > 0 && !accelerometerInUse) {
                     instance.makeFlash(Integer.parseInt(prefs.load("sms_blinks")));
-
-                instance.handler.postDelayed(runnable, Long.parseLong(prefs.load("blink_interval")));
+                    instance.handler.postDelayed(runnable, Long.parseLong(prefs.load("blink_interval")));
+                } else if(unreaded == 0 && i[0] == 0){
+                    instance.handler.removeCallbacks(runnable);
+                } else if(i[0] == 1) {
+                    i[0] = 0;
+                    instance.handler.postDelayed(runnable, Long.parseLong(prefs.load("blink_interval")));
+                }
             }
         };
         instance.handler.post(runnable);
@@ -79,6 +86,8 @@ public class FlashlightService {
 
         final String[] projection2 = {CallLog.Calls.CACHED_NAME, CallLog.Calls.CACHED_NUMBER_LABEL, CallLog.Calls.TYPE};
         final String where = CallLog.Calls.TYPE + "=" + CallLog.Calls.MISSED_TYPE + " AND " + CallLog.Calls.NEW + "=1";
+
+        final int[] i = {1};
 
         runnable = new Runnable() {
             @Override
@@ -91,10 +100,15 @@ public class FlashlightService {
                 if(prefs.load("accelerometer_switch").equals("true"))
                     accelerometerInUse = AccelerometerService.getInstance(context).isInMove();
 
-                if (missedCalls > 0 && !accelerometerInUse)
+                if (missedCalls > 0 && !accelerometerInUse) {
                     instance.makeFlash(Integer.parseInt(prefs.load("calls_blinks")));
-
-                instance.handler.postDelayed(runnable, Long.parseLong(prefs.load("blink_interval")));
+                    instance.handler.postDelayed(runnable, Long.parseLong(prefs.load("blink_interval")));
+                } else if(missedCalls == 0 && i[0] == 0){
+                    instance.handler.removeCallbacks(runnable);
+                } else if(i[0] == 1) {
+                    i[0] = 0;
+                    instance.handler.postDelayed(runnable, Long.parseLong(prefs.load("blink_interval")));
+                }
             }
         };
         instance.handler.post(runnable);

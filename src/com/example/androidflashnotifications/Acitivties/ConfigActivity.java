@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.widget.*;
 import com.example.androidflashnotifications.Others.PreferencesHelper;
 import com.example.androidflashnotifications.R;
+import com.example.androidflashnotifications.Services.FlashNotificationService;
 
 import java.util.Calendar;
 
@@ -189,20 +191,20 @@ public class ConfigActivity extends Activity {
         blinkIntervalET.setText(prefs.load("blink_interval"));
 
         String startTime = prefs.load("start_time");
-        if (startTime.length() == 6) {
+        if (startTime.length() == 4) {
             startTime = startTime.substring(0, 4);
             startTime = startTime.substring(0, 2) + ":" + startTime.substring(2, 4);
-        } else if (startTime.length() == 5) {
+        } else if (startTime.length() == 3) {
             startTime = startTime.substring(0, 3);
             startTime = startTime.substring(0, 1) + ":" + startTime.substring(1, 3);
         }
         startTimeTV.setText(startTime);
 
         String endTime = prefs.load("end_time");
-        if (endTime.length() == 6) {
+        if (endTime.length() == 4) {
             endTime = endTime.substring(0, 4);
             endTime = endTime.substring(0, 2) + ":" + endTime.substring(2, 4);
-        } else if (endTime.length() == 5) {
+        } else if (endTime.length() == 3) {
             endTime = endTime.substring(0, 3);
             endTime = endTime.substring(0, 1) + ":" + endTime.substring(1, 3);
         }
@@ -213,6 +215,8 @@ public class ConfigActivity extends Activity {
 
     private void dependsOnNotificationSwitch() {
         if (notificationsSwitch.isChecked()) {
+
+            startService(new Intent(this, FlashNotificationService.class));
             callsSwitch.setEnabled(true);
             smsSwitch.setEnabled(true);
             timeSwitch.setEnabled(true);
@@ -223,6 +227,7 @@ public class ConfigActivity extends Activity {
             dependsOnTimeSwitch();
             blinkInterval();
         } else {
+            stopService(new Intent(this, FlashNotificationService.class));
             callsSwitch.setEnabled(false);
             smsSwitch.setEnabled(false);
             timeSwitch.setEnabled(false);
@@ -296,11 +301,16 @@ public class ConfigActivity extends Activity {
 
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
             String minutes = String.valueOf(minute);
+            String hours = String.valueOf(hourOfDay);
+
             if (minute < 10)
                 minutes = "0" + String.valueOf(minute);
 
-            prefs.save(String.valueOf(hourOfDay) + minutes + "00", caller);
-            textView.setText(String.valueOf(hourOfDay) + ":" + minutes);
+            if(hourOfDay < 10)
+                hours = "0" + String.valueOf(hourOfDay);
+
+            prefs.save(hours + minutes, caller);
+            textView.setText(hours + ":" + minutes);
         }
     }
 }
